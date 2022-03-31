@@ -1,0 +1,161 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Student Details{% endblock %}
+{% block body %}
+<h2 style="margin-left:117px;">Details</h2>
+<br>
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+    <img src="{{detail.student_img.url}}" width="200" height="200">
+      <div class="row">
+        <div><b>Name:</b> &nbsp; </div>
+        <div id="name">{{detail.name}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div><b>Email:</b> &nbsp;</div>
+        <div > {{detail.email}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div><b>Gender:</b></div>
+        <div> &nbsp; {{detail.gender}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div><b>University Roll Number:</b></div>
+        <div> &nbsp; {{detail.university_roll_no}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div><b>Section:</b></div>
+        <div> &nbsp; {{detail.post}}</div>
+      </div>
+      <hr>
+      <div class="row">
+        <div><b>Phone:</b></div>
+        <div> &nbsp; {{detail.phone}}</div>
+      </div>
+    </div>
+
+    <div class="col-sm">
+      <div class="row">
+        <button type="button" class="btn btn-primary" onclick="hide()">Filter by Date</button>
+        &nbsp;
+        <button type="button" class="btn btn-primary" onclick="show()">View All</button>
+      </div>
+      <hr>
+
+      <div class="range" style="display: none;">
+        <div class="row">
+          <b class="date"> From : &nbsp; </b>
+          <input type='date' name="date_from" id="date_from" class="date">
+          &nbsp;
+          &nbsp;
+          <b class="date">To: &nbsp; </b>
+          <input type='date' name="date_to" id="date_to" class="date">
+        </div>
+        <br>
+        <button type="button" class="btn btn-primary" id="attendance_date">Fetch Attendance Data</button>
+      </div>
+
+      <hr>
+
+
+      <div class="row">
+        <div class="col">
+          <h4>Name</h4>
+        </div>
+        <div class="col">
+          <h4>Date</h4>
+        </div>
+        <div class="col">
+          <h4>Status</h4>
+        </div>
+      </div>
+      <hr>
+      <div id="Stud_data" class="range">
+      
+      </div>
+      <div id="all">
+        {% for data in attendance_detail %}
+        <div class="row">
+          <div class="col">{{data.name}}</div>
+
+          <div class="col">{{data.attendence_date}}</div>
+          <div class="col">{{data.status}}</div>
+        </div>
+        <hr>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock%}
+{% block js %}
+<script>
+  function hide(){
+    $('#all').css("display", "none")
+    $('.range').css("display", "block")
+    
+  }
+  function show(){
+     $('#all').css("display", "block")
+    $('.range').css("display", "none")
+  }
+
+  $(document).ready(function () {
+      $("#attendance_date").click(function () {
+          var attendance_date_from = $("#date_from").val();
+          var attendance_date_to = $("#date_to").val();
+          var Employe_name = document.getElementById('name').innerHTML;
+          console.log(Employe_name);
+          
+
+           $.ajax({
+          url: '{% url 'from_to_staff_attendance' %}',
+          type: 'POST',
+          data: { date_from:attendance_date_from, date_to: attendance_date_to, Employe_name:Employe_name },
+        })
+
+
+          .done(function (response) {
+            var json_data = JSON.parse(response);
+            console.log(json_data)
+            //Displaying Attendance Date Input and Employes Attendance
+            var div_data = `<div class="container">`;
+
+            for (key in json_data) {//console.log(json_data[key][name])
+              div_data += `<div class="container">
+                                    <div class="row">
+                                        <div class="col">
+                                            ${json_data[key]['name']}
+                                        </div>
+                                        <div class="col">
+                                            ${json_data[key]['date']}
+                                        </div>
+                                        <div class="col">
+                                            ${json_data[key]['status']}
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <hr>`
+
+            }
+            div_data += `
+                </div>  `;
+
+            $("#Stud_data").html(div_data);
+
+          })
+          .fail(function () {
+            alert("Error in Fetching Students.")
+          })
+      })
+
+  })
+</script>
+{% endblock js %}

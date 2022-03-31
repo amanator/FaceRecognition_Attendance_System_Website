@@ -1,0 +1,87 @@
+{% extends 'info/basic.html' %} {% load static %}
+ {% block title%} Add Student{%endblock %} 
+{% block css %}
+ .radio-inline{ padding-left:10px; }
+  {% endblock css%}
+ {% block body %}
+<div class="container my-3">
+  <h3>Add Student</h3>
+  <form id="myfrm" action="/info/add_student/" method="post"  enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="name"
+        name="name"
+        placeholder="Enter Your Name"
+      />
+    </div>
+    <div class="form-group">
+      <label for="name">Email</label>
+      <input
+        type="email"
+        class="form-control"
+        id="email"
+        name="email"
+        placeholder="Enter Your Email"
+      />
+    </div>
+
+    <div class="form-group">
+      <span> Gender</span>
+      <select id="gender" name="gender">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="name">Phone</label>
+      <input
+        type="tel"
+        class="form-control"
+        id="phone"
+        name="phone"
+        placeholder="Enter Your Phone Number"
+      />
+    </div>
+    <div class="form-group">
+      <label for="name">University Roll Number</label>
+      <input
+        type="text"
+        class="form-control"
+        id="university_roll_no"
+        name="university_roll_no"
+        placeholder="Enter Your University Roll Number"
+      />
+    </div>
+
+    <hr />
+    <div class="form-group">
+      <span> Section</span>
+      <select id="position" name="position">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="G">G</option>
+        <option value="H">H</option>
+        <option value="I">I</option>
+        <option value="J">J</option>
+      </select>
+    </div>
+    <div class="input-group mb-3">
+  <input type="file" class="form-control" id="image" name="image">
+  
+</div>
+    <hr />
+    <button type="submit" id="btnn" class="btn btn-success">Submit</button>
+  </form>
+</div>
+{% endblock %}
+ {% block js %} {% endblock %}

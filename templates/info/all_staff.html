@@ -1,0 +1,46 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Staff Details{% endblock %}
+{% block body %}
+<br>
+<br>
+<h2 style="margin-left:117px;">Staff Details</h2>
+<br>
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <h3>Name</h3>
+        </div>
+        <div class="col-sm">
+            <h3> Position</h3>
+        </div>
+        <div class="col-sm">
+            <h3> Status</h3>
+        </div>
+    </div>
+</div>
+<hr>
+<div class='container' id="all">
+    {% for data in staff_detail %}
+    <div class="row">
+        <div class="col-sm">{{data.name}}</div>
+
+        <div class="col-sm">{{data.post}}</div>
+        <div class="col-sm row">{{data.email}}
+            <form action="/info/staff_details/" id="my_form{{data.sno}}" method='POST' style="margin-left:10px;">
+                {% csrf_token %}
+                <input type="hidden" id="id" name="staff_sno" value="{{data.sno}}">
+
+                <a href="javascript:{}"
+                    onclick="document.getElementById('my_form{{data.sno}}').submit(); return false;">View Details</a>
+            </form>
+        </div>
+
+    </div>
+    <hr>
+    {% endfor %}
+</div>
+
+{% endblock %}

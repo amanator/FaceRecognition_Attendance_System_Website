@@ -1,0 +1,123 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Mark Attendance{% endblock %}
+
+{% block body %}
+<br>
+<br>
+<h2 style="margin-left:117px;">Mark Attendance</h2>
+<br>
+<div style="margin-left:117px;"><b>Date </b>: <input type='date' name="dat" id="dat"></div>
+<br>
+
+<div class="container">
+   <div class="row">
+      <div class="col-sm">
+         <h3>Name</h3>
+      </div>
+      <div class="col-sm">
+         <h3> Position</h3>
+      </div>
+      <div class="col-sm">
+         <h3> Mark Attendance</h3>
+      </div>
+   </div>
+</div>
+<hr>
+{% for i in context %}
+<div class="container">
+   <div class="row">
+      <div class="col-sm">
+         {{i.name}}
+      </div>
+      <div class="col-sm">
+         {{i.post}}
+      </div>
+      <input type="hidden" id="id" name="id" value="{{i.sno}}" >
+      <div class="col-sm">
+         <div class="input-group">
+            <div class="input-group-text">
+               {% comment %} <label>
+                  <input name="attend" type="radio" value="Present" />
+                  <span>Present</span>
+               </label>
+
+               <label style="margin-left:10px;">
+                  <input name="attend" type="radio" value="Absent" />
+                  <span>Absent</span>
+               </label> {% endcomment %}
+
+                <input type='checkbox' name='student_data[]' value="{{i.sno}}">
+               <span style="margin-left:10px;">Present</span>
+
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<hr>
+{% endfor %}
+<button id='save_attendance' class='btn btn-success' type='button' style="margin-left:117px;">Save Attendance Data</button>
+
+{% endblock %}
+
+
+{% block js %}
+<script>
+   
+ $(document).ready(function(){
+   $(document).on("click", "#save_attendance", function(){
+                console.log("hey")
+                //Disabling the Button while data is being saved in Server
+               
+                //console.log("SAVE")
+                var student_data=$("input[name='student_data[]'").map(function(){ 
+                        if($(this).is(":checked")){
+                            return {"id":$(this).val(), "status":'Present'}; // Getting ID and Value of Students
+                        }
+                        else
+                        {
+                            return {"id":$(this).val(), "status":'Absent'}; // Getting ID and Value of Students
+                        }
+                    }).get()
+               console.log(student_data)
+               student_data = JSON.stringify(student_data)
+
+               var attendance_date=$("#dat").val();
+               {% comment %} alert(attendance_date) {% endcomment %}
+
+                // Saving Attendance Data into Database
+
+                $.ajax({
+                    url:'{% url 'save_data' %}',
+                    type:'POST',
+                    data:{student_ids:student_data, attendance_date:attendance_date},
+                })
+
+                
+                .done(function(response){
+                    
+                    if(response=="OK")
+                    {
+                        alert("Attendance Saved!")
+                    }
+                    else
+                    {
+                        alert("Failed to Save Attendance!")
+                    }
+                    location.reload()
+                    
+                    //console.log(response)
+                })
+
+                .fail(function(){
+                    alert("Error in Saving Students Attendance Data.")
+                })
+
+            })
+
+                         })
+
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Attendance Report{% endblock %}
+
+{%block body%}
+<form action="/info/facea/" method="post">
+{% csrf_token %}
+  <input type="submit" name="take" value="take" id="take" />
+</form>
+<form action="/info/facea/" method="post">
+{% csrf_token %}
+  <input type="submit" name="take" value="stop" id="take" />
+</form>
+{%endblock%}

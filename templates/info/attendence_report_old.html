@@ -1,0 +1,46 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Attendance Report{% endblock %}
+{% block body %}
+
+<h2 style="margin-left:117px;">Attendance Report</h2>
+<br>
+<div style="margin-left:117px;"><b>Date </b>: <input type='date' name="dat" id="dat"></div>
+<br>
+<div class="container">
+   <div class="row">
+      <div class="col-sm">
+         <h3>Name</h3>
+      </div>
+      <div class="col-sm">
+         <h3> Date</h3>
+      </div>
+      <div class="col-sm">
+         <h3> Status</h3>
+      </div>
+   </div>
+</div>
+<hr>
+{% for i in context %}
+<div class="container">
+   <div class="row">
+      <div class="col-sm">
+         {{i.name}}
+      </div>
+      <div class="col-sm">
+         {{i.date}}
+      </div>
+      <input type="hidden" id="id" name="id" value="{{i.sno}}" >
+      <div class="col-sm">
+         <div class="input-group">
+            <div class="input-group-text">
+                    <span >{{i.status}}</span>
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+<hr>
+{% endfor %}
+{% endblock %}

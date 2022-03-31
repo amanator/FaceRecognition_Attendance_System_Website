@@ -1,0 +1,187 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Attendance Report{% endblock %}
+{% block body %}
+<br>
+<br>
+<h2 style="margin-left:117px;">Mark Attendance</h2>
+<br>
+
+<div style="margin-left:117px;"> 
+  <div class="row">
+<span> &nbsp; <b>Section: &nbsp</b></span>
+<select id="position" name="position">
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="G">G</option>
+        <option value="H">H</option>
+        <option value="I">I</option>
+        <option value="J">J</option>
+      </select>&nbsp &nbsp
+    
+    <button type="button" class="btn btn-primary" id="attendance_date">Fetch Attendance Data</button>&nbsp &nbsp
+    <form action="/info/face_recog/" method="post">
+    {% csrf_token %}
+    <input type="submit" class="btn btn-primary" name="Face_Recognition" value="Face_Recognition" id="Face_Recognition" />
+       NOTE : Press Q to quit Window
+    </form>
+    </div>
+    <br>
+    <br>
+    <div style="margin-left:10px;" class="row">
+    <b class="date" >Date: &nbsp; </b> 
+    <input type='date' name="dat" id="dat" class="date">
+ 
+    <hr>
+</div>
+</div>
+<hr>
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <h3>Name</h3>
+        </div>
+        <div class="col-sm">
+            <h3> Section</h3>
+        </div>
+        <div class="col-sm">
+            <h3> Status</h3>
+        </div>
+    </div>
+</div>
+<hr>
+<div class="container" id="Stud_data">
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+    $(document).ready(function () {
+
+        $(".date").css("display", "none")
+        //Fetching Attendance Date
+
+        // Now Working on Fetch Employe after attendance date selected
+        $("#attendance_date").click(function () {
+
+            // Displaying Employes Based on Staff, Course and Session Enrolled
+            console.log("I am in")
+            var position = $("#position").val()
+            console.log(attendance_date)
+            $.ajax({
+                url: '{% url 'get_attendence' %}',
+                type: 'POST',
+                data: { position: position },
+            })
+
+
+                .done(function (response) {
+                    var json_data = JSON.parse(response);
+                    console.log(json_data)
+                    //Displaying Attendance Date Input and Employes Attendance
+                    var div_data = `<div class="container">`;
+
+                    for (key in json_data) {//console.log(json_data[key][name])
+                        $(".date").css("display", "block")
+                        div_data += `<div class="container">
+                                    <div class="row">
+                                        <div class="col-sm">
+                                            ${json_data[key]['name']}
+                                        </div>
+                                        <div class="col-sm">
+                                            ${json_data[key]['post']}
+                                        </div>
+                                        <input type="hidden" id="id" name="id" value="${json_data[key]['id']}" >
+                                        <div class="col-sm">
+                                            <div class="input-group">
+                                                <div class="input-group-text">
+                                                
+
+                                                 <input type='checkbox' name='Stud_data[]' value="${json_data[key]['id']}">
+                                                <span style="margin-left:10px;">Present</span>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <hr>`
+
+                    }
+                    div_data += `
+               <button id='save_attendance' class='btn btn-success' type='button'>Save Attendance Data</button>
+                </div>
+            
+               `;
+
+                    $("#Stud_data").html(div_data);
+
+                })
+                .fail(function () {
+                    alert("Error in Fetching Employes.")
+                })
+
+
+        })
+
+    })
+
+    $(document).ready(function () {
+        $(document).on("click", "#save_attendance", function () {
+           // console.log("hey")
+            //Disabling the Button while data is being saved in Server
+            var position = $("#position").val()
+            //console.log("SAVE")
+            var Stud_data = $("input[name='Stud_data[]'").map(function () {
+                if ($(this).is(":checked")) {
+                    return { "id": $(this).val(), "status": 'Present' }; // Getting ID and Value of Employes
+                }
+                else {
+                    return { "id": $(this).val(), "status": 'Absent' }; // Getting ID and Value of Employes
+                }
+            }).get()
+           // console.log(Stud_data)
+            Stud_data = JSON.stringify(Stud_data)
+
+            var attendance_date = $("#dat").val();
+            {% comment %} alert(attendance_date) {% endcomment %}
+
+            // Saving Attendance Data into Database
+
+            $.ajax({
+                url: '{% url 'save_data' %}',
+                type: 'POST',
+                data: { Employe_ids: Stud_data, attendance_date: attendance_date, Section:position },
+            })
+
+
+                .done(function (response) {
+
+                    if (response == "OK") {
+                       // alert("Attendance Saved!")
+                    }
+                    else {
+                        alert("Failed to Save Attendance!")
+                    }
+                    location.reload()
+
+                    //console.log(response)
+                })
+
+                .fail(function () {
+                    alert("Error in Saving Students Attendance Data.")
+                })
+
+        })
+
+    })
+
+</script>
+{% endblock %}

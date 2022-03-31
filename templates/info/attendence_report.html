@@ -1,0 +1,183 @@
+{% extends 'info/basic.html' %}
+{% load static %}
+
+{% block title%} Attendance Report{% endblock %}
+
+{% block css %}
+
+#dat{
+   height:10px;
+}
+
+{% endblock %}
+{% block body %}
+<br>
+<br>
+<h2 style="margin-left:117px;">Attendance Report</h2>
+<br>
+
+<div style="margin-left:117px;" class="row">
+   <span> &nbsp; <b>Section: &nbsp</b></span>
+<select id="position" name="position" style="height:40px">
+        <option value="All">All</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+        <option value="E">E</option>
+        <option value="F">F</option>
+        <option value="G">G</option>
+        <option value="H">H</option>
+        <option value="I">I</option>
+        <option value="J">J</option>
+      </select>&nbsp &nbsp
+   <b>Date </b>: &nbsp;
+   <input type='date' name="dat" id="dat" class="bttn" style="height:40px"> &nbsp;
+
+   <button type="button" class="btn btn-primary bttn" id="attendance_date" style="height:40px;">Fetch Attendance Data</button>
+
+   <form action="/info/export_excel/" method="POST">
+      <span style="margin-left: 120px;"> &nbsp; <b>Section: &nbsp</b></span>
+      <select id="position" name="position" style="height:40px; ">
+         <option value="All">All</option>
+         <option value="A">A</option>
+         <option value="B">B</option>
+         <option value="C">C</option>
+         <option value="D">D</option>
+         <option value="E">E</option>
+         <option value="F">F</option>
+         <option value="G">G</option>
+         <option value="H">H</option>
+         <option value="I">I</option>
+         <option value="J">J</option>
+       </select>&nbsp 
+      <span > &nbsp; <b>Month:</b></span>
+      <select id="month" name='month'>
+         <option value="01">January</option>
+         <option value="02">February</option>
+         <option value="03">March</option>
+         <option value="04">April</option>
+         <option value="05">May</option>
+         <option value="06">June</option>
+         <option value="07">July</option>
+         <option value="08">August</option>
+         <option value="09">September</option>
+         <option value="10">October</option>
+         <option value="11">November</option>
+         <option value="12">December</option>
+      </select>
+      <span> &nbsp; <b>Year:</b></span>
+      <select id="year" name='year'>
+         <option value="21">2021</option>
+         <option value="22">2022</option>
+         <option value="23">2023</option>
+         <option value="24">2024</option>
+         <option value="25">2025</option>
+         <option value="26">2026</option>
+         <option value="27">2027</option>
+         <option value="28">2028</option>
+         <option value="29">2029</option>
+         <option value="30">2030</option>
+      </select>
+      <!-- <a class="btn btn-primary" href="/info/export_excel">Export Excel </span></a> -->
+      <button type="submit" class="btn btn-primary bttn">Export Excel</button>
+   </form>
+   <br>
+   <br>
+   <br>
+   <hr>
+   <hr>
+</div>
+<div class="container">
+   <div class="row">
+      <div class="col-sm">
+         <h3>Name</h3>
+      </div>
+      <div class="col-sm">
+         <h3> Date</h3>
+      </div>
+      <div class="col-sm">
+         <h3> Status</h3>
+      </div>
+   </div>
+</div>
+<hr>
+<div class="container" id="Employe_data">
+
+</div>
+
+{% endblock %}
+
+{% block js %}
+<script>
+   $(document).ready(function () {
+
+
+      //Fetching Attendance Date
+
+      // Now Working on Fetch Employe after attendance date selected
+      $("#attendance_date").click(function () {
+
+         // Displaying Employes Based on Staff, Course and Session Enrolled
+         //console.log("I am in")
+         var attendance_date = $("#dat").val()
+         var section = $("#position").val()
+         console.log(section)
+         var month = $("#month").val()
+        // console.log(month)
+         $.ajax({
+            url: '{% url 'admin_get_attendence' %}',
+            type: 'POST',
+            data: { attendance_date: attendance_date, section:section },
+         })
+
+
+            .done(function (response) {
+               var json_data = JSON.parse(response);
+              // console.log(json_data)
+               //Displaying Attendance Date Input and Employes Attendance
+               var div_data = `<div class="container">`;
+
+               for (key in json_data) {//console.log(json_data[key][name])
+                  div_data += `<div class="row">
+                              <div class="col-sm">
+                                 ${json_data[key]['name']}
+                              </div>
+                              <div class="col-sm">
+                                 ${json_data[key]['date']}
+                              </div>
+                              <div class="col-sm">
+                                 <div class="input-group">
+                                    <div class="input-group-text">
+                                          <span >${json_data[key]['status']}</span>
+                              
+                                    </div>
+                              <form action="/info/stud_details/" id="my_form${json_data[key]["stud_sno"]}" method='POST' style="margin-left:10px;">  
+                              {% csrf_token %}  
+                              <input type="hidden" id="id" name="staff_sno" value="${json_data[key]["stud_sno"]}" >
+                        
+                              <a href="javascript:{}" onclick="document.getElementById('my_form${json_data[key]["stud_sno"]}').submit(); return false;">View Details</a>
+                              </form>
+                                 </div>
+                              </div>
+                           </div>
+                           <hr>`
+
+               }
+               div_data += `</div>
+               `;
+
+               $("#Employe_data").html(div_data);
+
+            })
+            .fail(function () {
+               alert("Error in Fetching Students.")
+            })
+
+
+      })
+
+   })
+
+</script>
+{% endblock %}
